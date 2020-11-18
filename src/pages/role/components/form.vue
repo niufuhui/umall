@@ -2,8 +2,8 @@
   <div>
     <!-- 5.绑定info.isshow到模板 -->
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
-      <el-form :model="user">
-        <el-form-item label="角色名称" label-width="120px">
+      <el-form :model="user" :rules="rules">
+        <el-form-item label="角色名称" label-width="120px" prop="rolename">
           <!-- 通过v-model将user绑定到表单上 -->
           <el-input v-model="user.rolename" autocomplete="off"></el-input>
         </el-form-item>
@@ -46,13 +46,16 @@ import {
   reqRoleDetail,
   reqRoleUpdate,
 } from "../../../utils/http";
-import { successAlert } from "../../../utils/alert";
+import { successAlert,errorAlert } from "../../../utils/alert";
 export default {
   // 4.接受info
   //   
   props: ["info"],
   data() {
     return {
+      rules: {
+        rolename: [{ required: true, message: "请输入角色名称", trigger: "blur" }],
+      },
       // 初始化user
       user: {
         rolename: "",
@@ -92,8 +95,20 @@ export default {
       // 把树清空
       this.$refs.tree.setCheckedKeys([]);
     },
+    // 验证
+    check() {
+      return new Promise((resolve, reject) => {
+        //验证
+        if (this.user.rolename === "") {
+          errorAlert("角色名称为空");
+          return;
+        }
+        resolve();
+      });
+    },
     // 点击添加按钮
     add() {
+      this.check().then(() => {
       // 将树形控件的数据取出，变成字符串数组，赋值给user.menus
       this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
       // 发起添加的请求
@@ -109,6 +124,7 @@ export default {
           this.$emit("init");
         }
       });
+      });
     },
     // 获取一条数据
     getOne(id) {
@@ -123,6 +139,7 @@ export default {
     },
     // 点击修改
     update() {
+      this.check().then(() => {
       this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
       reqRoleUpdate(this.user).then((res) => {
         if (res.data.code === 200) {
@@ -135,6 +152,7 @@ export default {
           // 列表刷新
           this.$emit("init");
         }
+      });
       });
     },
     // 弹框消失

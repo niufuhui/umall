@@ -1,8 +1,8 @@
 <template>
   <div class="add">
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
-      <el-form :model="user">
-        <el-form-item label="规格名称" label-width="120px">
+      <el-form :model="user" :rules="rules">
+        <el-form-item label="规格名称" label-width="120px" prop="specsname">
           <el-input v-model="user.specsname" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item
@@ -10,6 +10,7 @@
           label-width="120px"
           v-for="(item, index) in attrArr"
           :key="index"
+          prop="value"
         >
           <div class="line">
             <el-input v-model="item.value" placeholder="off"></el-input>
@@ -30,7 +31,8 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary" v-if="info.title == '添加规格'" @click="add">添 加</el-button
+        <el-button type="primary" v-if="info.title == '添加规格'" @click="add"
+          >添 加</el-button
         >
         <el-button type="primary" v-else @click="update">修 改</el-button>
       </div>
@@ -44,13 +46,19 @@ import {
   reqspecsAdd,
   reqspecsDetail,
   reqspecsUpdate,
-  reqspecsDel
+  reqspecsDel,
 } from "../../../utils/http";
-import { successAlert } from "../../../utils/alert";
+import { successAlert, errorAlert } from "../../../utils/alert";
 export default {
   props: ["info"],
   data() {
     return {
+      rules: {
+        specsname: [
+          { required: true, message: "请输入规格名称", trigger: "blur" },
+        ],
+        attrs: [{ required: true, message: "请输入规格属性", trigger: "blur" }],
+      },
       user: {
         specsname: "",
         attrs: "",
@@ -61,13 +69,12 @@ export default {
     };
   },
   computed: {
-    ...mapGetters({
-    }),
+    ...mapGetters({}),
   },
   methods: {
     ...mapActions({
       reqList: "cate/reqList",
-      reqCount:"specs/reqCount",
+      reqCount: "specs/reqCount",
     }),
     // 点击了取消
     cancel() {
@@ -80,7 +87,7 @@ export default {
         attrs: "",
         status: 1,
       };
-      this.attrArr=[{ value: "" }];
+      this.attrArr = [{ value: "" }];
     },
     // 点击添加新增规格按钮
     addAttr() {
@@ -92,46 +99,70 @@ export default {
     delAttr(index) {
       this.attrArr.splice(index, 1);
     },
-    add(){
-      this.user.attrs=JSON.stringify(this.attrArr.map(item=>item.value))
-      reqspecsAdd(this.user).then(res=>{
-        if(res.data.code === 200){
-          // 弹个成功
-              successAlert("添加成功");
-              // 弹框消失
-              this.cancel();
-              // form置空
-              this.empty();
-              // 列表数据刷新list
-              this.reqList();
+    // 验证
+    check() {
+      return new Promise((resolve, reject) => {
+        //验证
+        if (this.user.specsname === "") {
+          errorAlert("规格名称为空");
+          return;
         }
-      })
+        if (this.user.attrs === "") {
+          errorAlert("规格属性为空");
+          return;
+        }
+        resolve();
+      });
+    },
+    add() {
+      
+      this.check().then(() => {
+        this.user.attrs = JSON.stringify(this.attrArr.map((item) => item.value));
+        reqspecsAdd(this.user).then((res) => {
+          if (res.data.code === 200) {
+            // 弹个成功
+            successAlert("添加成功");
+            // 弹框消失
+            this.cancel();
+            // form置空
+            this.empty();
+            // 列表数据刷新list
+            this.reqList();
+          }
+        });
+      });
     },
     // 获取详情
     getOne(id) {
       reqspecsDetail(id).then((res) => {
         // 此刻user没有id
         this.user = res.data.list[0];
-        this.addAttr = JSON.parse(this.user.attrs).map(item=>({value:item}))
+        this.addAttr = JSON.parse(this.user.attrs).map((item) => ({
+          value: item,
+        }));
         // 补id
         this.user.id = id;
       });
     },
     // 修改
     update() {
-      this.user.attrs = JSON.stringify(this.attrArr.map(item=>item.value))
-      reqspecsUpdate(this.user).then((res) => {
-        if (res.data.code == 200) {
-          // 弹个成功
-          successAlert("更新成功");
-          // 弹框消失
-          this.cancel();
-          // form置空
-          this.empty();
-          // 列表数据刷新list
-          this.reqList();
-          this.reqCount()
-        }
+      this.check().then(() => {
+        this.user.attrs = JSON.stringify(
+          this.attrArr.map((item) => item.value)
+        );
+        reqspecsUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            // 弹个成功
+            successAlert("更新成功");
+            // 弹框消失
+            this.cancel();
+            // form置空
+            this.empty();
+            // 列表数据刷新list
+            this.reqList();
+            this.reqCount();
+          }
+        });
       });
     },
     // 处理消失
@@ -141,9 +172,7 @@ export default {
       }
     },
   },
-  mounted() {
-    
-  },
+  mounted() {},
 };
 </script>
 

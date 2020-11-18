@@ -49,7 +49,6 @@ export default {
       user:{
         username:"",
         password:"",
-        // phone:""
       }
     }
   },

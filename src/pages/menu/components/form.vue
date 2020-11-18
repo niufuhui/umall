@@ -2,8 +2,8 @@
   <div>
     <!-- 5.绑定info.isshow到模板 -->
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
-      <el-form :model="form">
-        <el-form-item label="菜单名称" label-width="120px">
+      <el-form :model="form" :rules="rules">
+        <el-form-item label="菜单名称" label-width="120px" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="上级菜单" label-width="120px">
@@ -80,7 +80,10 @@ export default {
   props: ["info", "list"],
   data() {
     return {
-        // icon 集合
+      rules: {
+        title: [{ required: true, message: "请输入菜单名称", trigger: "blur" }],
+      },
+      // icon 集合
       icons: [
         "el-icon-s-tools",
         "el-icon-user-solid",
@@ -120,22 +123,35 @@ export default {
         status: 1,
       };
     },
+    // 验证
+    check() {
+      return new Promise((resolve, reject) => {
+        //验证
+        if (this.form.title === "") {
+          errorAlert("商品名称为空");
+          return;
+        }
+        resolve();
+      });
+    },
     // 点击添加按钮
     add() {
-      // 发起添加的请求
-      reqMenuAdd(this.form).then((res) => {
-        if (res.data.code === 200) {
-          // 弹个成功
-          successAlert("添加成功");
-          // 弹框消失
-          this.cancel();
-          // form置空
-          this.empty();
-          // 列表数据刷新
-          this.$emit('init')
-        } else {
-          errorAlert(res.data.msg);
-        }
+      this.check().then(() => {
+        // 发起添加的请求
+        reqMenuAdd(this.form).then((res) => {
+          if (res.data.code === 200) {
+            // 弹个成功
+            successAlert("添加成功");
+            // 弹框消失
+            this.cancel();
+            // form置空
+            this.empty();
+            // 列表数据刷新
+            this.$emit("init");
+          } else {
+            errorAlert(res.data.msg);
+          }
+        });
       });
     },
     // 上级菜单发生了修改
@@ -158,19 +174,21 @@ export default {
     },
     // 点击修改
     update() {
-      reqMenuUpdate(this.form).then((res) => {
-        if (res.data.code === 200) {
-          // 成功的弹框
-          successAlert("修改成功");
-          // 弹框消失
-          this.cancel();
-          // form重置
-          this.empty();
-          // 列表刷新
-          this.$emit("init");
-        } else {
-          errorAlert(res.data.msg);
-        }
+      this.check().then(() => {
+        reqMenuUpdate(this.form).then((res) => {
+          if (res.data.code === 200) {
+            // 成功的弹框
+            successAlert("修改成功");
+            // 弹框消失
+            this.cancel();
+            // form重置
+            this.empty();
+            // 列表刷新
+            this.$emit("init");
+          } else {
+            errorAlert(res.data.msg);
+          }
+        });
       });
     },
     // 弹框消失

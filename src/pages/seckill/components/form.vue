@@ -18,12 +18,13 @@
           <el-form-item label="活动期限" label-width=" 120px ">
             <el-card class="box-card">
               <el-date-picker
-                v-model="dateTime"
+                v-model="value"
                 type="datetimerange"
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
                 size="medium"
+                value-format="timestamp"
               ></el-date-picker>
             </el-card>
           </el-form-item>
@@ -108,7 +109,10 @@ export default {
   data() {
     return {
       rules: {
-        title: [{ required: true, message: "请输入商品名称", trigger: "blur" }],
+        title: [{ required: true, message: "请输入活动名称", trigger: "blur" }],
+        // dateTime: [
+        //   { required: true, message: "请输入日期时间", trigger: "change" },
+        // ],
         first_cateid: [
           { required: true, message: "请输入一级分类", trigger: "change" },
         ],
@@ -117,6 +121,7 @@ export default {
         ],
         goodsid: [{ required: true, message: "请输入商品", trigger: "change" }],
       },
+      value: [],
       // 初始化数据
       user: {
         title: "",
@@ -155,6 +160,7 @@ export default {
     }),
     changeFirst() {
       this.user.second_cateid = "";
+      this.user.goodsid = "";
       this.getSecondList();
     },
     getSecondList() {
@@ -168,7 +174,10 @@ export default {
       this.getThirdList();
     },
     getThirdList() {
-      reqgoodsList({fid: this.user.first_cateid,sid: this.user.second_cateid,}).then((res) => {
+      reqgoodsList({
+        fid: this.user.first_cateid,
+        sid: this.user.second_cateid,
+      }).then((res) => {
         this.thirdSpecsList = res.data.list;
       });
     },
@@ -193,65 +202,87 @@ export default {
       this.thirdSpecsList = [];
       this.dateTime = [];
     },
-
-    add() {
-      //开始的时间赋值
-      this.user.begintime = this.dateTime[0].getTime();
-      //结束的时间赋值
-      this.user.endtime = this.dateTime[1].getTime();
-      reqSeckAdd(this.user).then((res) => {
-        if (res.data.code === 200) {
-          // 弹个成功
-          successAlert("添加成功");
-          // 弹框消失
-          this.cancel();
-          // form置空
-          this.empty();
-          // 列表数据刷新list
-          this.reqSeckillList();
+    // 验证
+    check() {
+      return new Promise((resolve, reject) => {
+        //验证
+        if (this.user.title === "") {
+          errorAlert("商品名称为空");
+          return;
         }
+        if (this.user.first_cateid === "") {
+          errorAlert("一级分类不能为空");
+          return;
+        }
+        if (this.user.second_cateid === "") {
+          errorAlert("二级分类不能为空");
+          return;
+        }
+        if (this.user.goodsid === "") {
+          errorAlert("商品为空");
+          return;
+        }
+        if (this.value.length === 0) {
+          errorAlert("日期时间为空");
+          return;
+        }
+
+        resolve();
+      });
+    },
+    add() {
+      this.user.begintime = this.value[0];
+      this.user.endtime = this.value[1];
+      this.check().then(() => {
+        reqSeckAdd(this.user).then((res) => {
+          if (res.data.code === 200) {
+            // 弹个成功
+            successAlert("添加成功");
+            // 弹框消失
+            this.cancel();
+            // form置空
+            this.empty();
+            // 列表数据刷新list
+            this.reqSeckillList();
+          }
+        });
       });
     },
     // 获取详情
     getOne(id) {
+      this.value.push(this.user.begintime, this.user.endtime);
       reqSeckDetail(id).then((res) => {
         // 此刻user没有id
         this.user = res.data.list;
+        console.log(this.user);
         // 补id
         this.user.id = id;
         //请二级list
         this.getSecondList();
         // 请求三级
         this.getThirdList();
-        // 开始时间赋值
-        this.user.begintime = res.data.list.begintime;
-        // 结束时间赋值
-        this.user.endtime = res.data.list.endtime;
-        //给datTime赋值，现在是字符串，先转成数字再用时间戳来得到相应的值
-        this.dateTime = [
-          new Date(parseInt(this.user.begintime)),
-          new Date(parseInt(this.user.endtime)),
-        ];
       });
     },
     // 修改
     update() {
-      reqSeckUpdate(this.user).then((res) => {
-        if (res.data.code === 200) {
-          // 弹个成功
-          successAlert("添加成功");
-          // 弹框消失
-          this.cancel();
-          // form置空
-          this.empty();
-          // 列表数据刷新list
-          this.reqSeckillList();
-        }
+      this.check().then(() => {
+        reqSeckUpdate(this.user).then((res) => {
+          if (res.data.code === 200) {
+            // 弹个成功
+            successAlert("添加成功");
+            // 弹框消失
+            this.cancel();
+            // form置空
+            this.empty();
+            // 列表数据刷新list
+            this.reqSeckillList();
+          }
+        });
       });
     },
     // 处理消失
     closed() {
-      if (this.info.title === "编辑商品") {
+      if (this.info.title === "编辑活动") {
         this.empty();
       }
     },
