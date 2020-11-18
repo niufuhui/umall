@@ -12,9 +12,6 @@ const mutations = {
         state.list=arr;
         console.log(state.list);
     },
-    changeTotal(state,num){
-        state.total=num;
-    },
     changePage(state,page){
         state.page=page;
     }
@@ -36,12 +33,12 @@ const actions = {
             context.commit("changeList",list)
         })
     },
-    // //请总数
-    reqCount(context){
-        reqgoodsCount().then(res=>{
-            context.commit("changeTotal",res.data.list[0].total)
-        })
-    },
+    // // //请总数
+    // reqCount(context){
+    //     reqgoodsCount().then(res=>{
+    //         context.commit("changeTotal",res.data.list[0].total)
+    //     })
+    // },
     //修改页码
     changePage(context,page){
         //修改页码
@@ -54,9 +51,6 @@ const actions = {
 const getters = {
     list(state){
         return state.list
-    },
-    total(state){
-        return state.total
     },
     size(state){
         return state.size

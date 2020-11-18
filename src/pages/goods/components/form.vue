@@ -197,10 +197,10 @@ export default {
       // 请求一级分类list
       reqcateList: "cate/reqList",
       //请求规格list
-      reqSpecsList: "specs/reqList",
+      reqspecsList: "specs/reqList",
       //商品list和总数
-      reqGoodsList: "goods/reqList",
-      reqGoodsCount: "goods/reqCount"
+      reqgoodsList: "goods/reqList",
+      reqgoodsCount: "goods/reqCount"
     }),
     changeFirst() {
       this.user.second_cateid = "";
@@ -324,8 +324,8 @@ export default {
             // form置空
             this.empty();
             // 列表数据刷新list
-            this.reqGoodsList();
-            this.reqGoodsCount();
+            this.reqgoodsList();
+            this.reqgoodsCount();
           }
         });
       });
@@ -368,8 +368,8 @@ export default {
             // form置空
             this.empty();
             // 列表数据刷新list
-            this.reqGoodsList();
-            this.reqGoodsCount();
+            this.reqgoodsList();
+            this.reqgoodsCount();
           }
         });
       });
@@ -390,7 +390,7 @@ export default {
     // 一进来请求一级分类list
     this.reqcateList();
     // 一进来就请求规格list,参数true，是为了取到所有的规格
-    this.reqSpecsList(true);
+    this.reqspecsList(true);
   },
 };
 </script>

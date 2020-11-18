@@ -2,39 +2,8 @@
   <div>
     <div>
       <!-- 23.list展示在页面 -->
-      <el-table
-        :data="list"
-        style="width: 100%; margin-bottom: 20px"
-        row-key="id"
-        border
-        :tree-props="{ children: 'children' }"
-      >
-        <el-table-column prop="id" label="商品编号" sortable></el-table-column>
-        <el-table-column prop="goodsname"  label="商品名称"  sortable ></el-table-column>
-        <el-table-column prop="price"  label="价格" ></el-table-column>
-        <el-table-column prop="market_price"  label="市场价格"  ></el-table-column>
-        <el-table-column label="图片" sortable>
-          <template slot-scope="scope">
-            <img :src="$imgPre + scope.row.img" alt="" />
-          </template>
-        </el-table-column>
-        <el-table-column label="是否新品">
-          <template slot-scope="scope">
-            <el-button type="primary" v-if="scope.row.isnew === 1"
-              >是</el-button
-            >
-            <el-button type="danger" v-else>否</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column label="是否热卖">
-          <template slot-scope="scope">
-            <el-button type="primary" v-if="scope.row.ishot === 1"
-              >是</el-button
-            >
-            <el-button type="danger" v-else>否</el-button>
-          </template>
-        </el-table-column>
-
+      <el-table :data="list"  style="width: 100%; margin-bottom: 20px"  row-key="id" border  :tree-props="{ children: 'children' }" >
+        <el-table-column prop="title"  label="活动名称"  sortable ></el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
             <el-button type="primary" v-if="scope.row.status === 1"
@@ -54,13 +23,7 @@
         </el-table-column>
       </el-table>
 
-      <el-pagination
-        background
-        layout="prev, pager, next"
-        :total="total"
-        :page-size="size"
-        @current-change="changePage"
-      ></el-pagination>
+      
     </div>
   </div>
 </template>
@@ -72,16 +35,14 @@ import { successAlert } from "../../../utils/alert";
 export default {
   computed: {
     ...mapGetters({
-      list: "seckil/list",
-      total: "seckil/total",
-      size: "seckil/size",
+      list: "seckill/list",
+      size: "seckill/size",
     }),
   },
   methods: {
     ...mapActions({
-      reqList: "seckil/reqList",
-      reqCount: "seckil/reqCount",
-      changePage: "seckil/changePage",
+      reqList: "seckill/reqList",
+      changePage: "seckill/changePage",
     }),
     // 27 删除
     del(id) {
@@ -92,7 +53,6 @@ export default {
           successAlert("删除成功");
           //刷新list
           this.reqList();
-          this.reqCount();
         }
       });
     },
@@ -103,8 +63,8 @@ export default {
   },
   mounted() {
     // 一进来就发请求
-    this.reqList(true);
-    this.reqCount();
+    this.reqList();
+    
   },
 };
 </script>
