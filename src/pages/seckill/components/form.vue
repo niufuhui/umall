@@ -16,7 +16,7 @@
 
         <div class="box">
           <el-form-item label="活动期限" label-width=" 120px ">
-            <el-card class="box-card">
+            <!-- <el-card class="box-card">
               <el-date-picker
                 v-model="value"
                 type="datetimerange"
@@ -26,7 +26,18 @@
                 size="medium"
                 value-format="timestamp"
               ></el-date-picker>
-            </el-card>
+            </el-card> -->
+
+
+             <el-date-picker
+      v-model="value"
+      type="datetimerange"
+      range-separator="至"
+      start-placeholder="开始日期"
+      end-placeholder="结束日期"
+       value-format="timestamp"
+      >
+    </el-date-picker>
           </el-form-item>
         </div>
 
@@ -247,11 +258,13 @@ export default {
     },
     // 获取详情
     getOne(id) {
-      this.value.push(this.user.begintime, this.user.endtime);
+      this.value= []
       reqSeckDetail(id).then((res) => {
         // 此刻user没有id
         this.user = res.data.list;
-        console.log(this.user);
+      this.value.push(this.user.begintime,this.user.endtime)
+
+        console.log( this.value);
         // 补id
         this.user.id = id;
         //请二级list
@@ -262,6 +275,10 @@ export default {
     },
     // 修改
     update() {
+      
+      this.user.begintime = this.value[0];
+      this.user.endtime = this.value[1];
+      console.log(this.user);
       this.check().then(() => {
         reqSeckUpdate(this.user).then((res) => {
           if (res.data.code === 200) {
