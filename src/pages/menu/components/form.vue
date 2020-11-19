@@ -6,7 +6,7 @@
         <el-form-item label="菜单名称" label-width="120px" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="上级菜单" label-width="120px">
+        <el-form-item label="上级菜单" label-width="120px" prop="pid">
           <el-select
             v-model="form.pid"
             placeholder="请选择"
@@ -38,7 +38,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="菜单地址" v-else label-width="120px">
+        <el-form-item label="菜单地址" v-else label-width="120px" prop="url">
           <el-select v-model="form.url" placeholder="请选择">
             <!-- 10.遍历routes -->
             <el-option
@@ -82,6 +82,8 @@ export default {
     return {
       rules: {
         title: [{ required: true, message: "请输入菜单名称", trigger: "blur" }],
+        pid: [{ required: true, message: "请输入上级菜单", trigger: "blur" }],
+        url: [{ required: true, message: "请输入菜单地址", trigger: "blur" }],
       },
       // icon 集合
       icons: [
@@ -128,7 +130,15 @@ export default {
       return new Promise((resolve, reject) => {
         //验证
         if (this.form.title === "") {
-          errorAlert("商品名称为空");
+          errorAlert("菜单名称为空");
+          return;
+        }
+        if (this.form.pid === "") {
+          errorAlert("上级菜单为空");
+          return;
+        }
+        if (this.form.url === "") {
+          errorAlert("菜单地址为空");
           return;
         }
         resolve();

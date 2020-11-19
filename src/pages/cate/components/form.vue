@@ -147,7 +147,7 @@ export default {
           errorAlert("分类名称为空");
           return;
         }
-        if (this.user.img === "") {
+        if (!this.user.img) {
           errorAlert("图片为空");
           return;
         }

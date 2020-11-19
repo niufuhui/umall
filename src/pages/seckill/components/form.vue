@@ -110,9 +110,6 @@ export default {
     return {
       rules: {
         title: [{ required: true, message: "请输入活动名称", trigger: "blur" }],
-        // dateTime: [
-        //   { required: true, message: "请输入日期时间", trigger: "change" },
-        // ],
         first_cateid: [
           { required: true, message: "请输入一级分类", trigger: "change" },
         ],
